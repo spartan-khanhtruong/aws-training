@@ -10,7 +10,7 @@ variable "vpc_cidr_block" {
 variable "public_port" {
   type        = list(number)
   description = "Public port"
-  default     = [80, 443]
+  default     = [80, 443, 22]
 }
 
 variable "private_port" {

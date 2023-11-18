@@ -14,21 +14,38 @@ module "security_group" {
   vpc_cidr_block = var.cidr_block
 }
 
+module "ec2" {
+  source = "./modules/ec2"
+
+  public_sg_id     = module.security_group.public_sg_id
+  public_subnet_id = module.main_vpc.public_subnet_ids[0]
+
+  db_host     = module.db.db_instance_address
+  db_port     = local.db_port
+  db_name     = local.db_name
+  db_username = local.db_username
+  db_password = local.db_password
+
+  depends_on = [module.db]
+}
+
 module "db" {
   source = "terraform-aws-modules/rds/aws"
 
-  identifier           = "khanhtruong-lesson-4"
-  engine               = "postgres"
-  engine_version       = "14"
-  family               = "postgres14" # DB parameter group
-  major_engine_version = "14"         # DB option group
-  instance_class       = "db.t3.micro"
-  publicly_accessible  = false # no public IP
+  identifier                  = "khanhtruong-lesson-4"
+  engine                      = "postgres"
+  engine_version              = "14"
+  family                      = "postgres14" # DB parameter group
+  major_engine_version        = "14"         # DB option group
+  instance_class              = "db.t3.micro"
+  publicly_accessible         = false # no public IP
 
-  db_name  = "postgres"
-  username = "postgres"
-  password = "postgres"
-  port     = 5432
+  manage_master_user_password = false
+
+  db_name                     = local.db_name
+  username                    = local.db_username
+  password                    = local.db_password
+  port                        = local.db_port
 
   allocated_storage = 20
   multi_az          = false
